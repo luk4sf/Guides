@@ -8,6 +8,6 @@
 
 4. *Ca certificate* stays at *(None)*, *(PEAP version)* stays at *Automatic* and *Inner authentication* stays at *MSCHAPv2*. Also check the box which says *No CA certificate is required*.  
   
-5. Now just put in your username followed by *@uni-freiburg.de* e.g. *lf312@uni-freiburg.de* in the *Username* field and your RAS-Password in the *Password* field, if you don't remember your password it can be changed at *https://myaccount.uni-freiburg.de/*.
+5. Now just put in your username followed by *@uni-freiburg.de* e.g. *mm123@uni-freiburg.de* in the *Username* field and your RAS-Password in the *Password* field, if you don't remember your password it can be changed at *https://myaccount.uni-freiburg.de/*.
 
 6. Now just hit connect!
