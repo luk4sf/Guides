@@ -45,10 +45,17 @@ Run *sudo airgraph-ng -i test-01.csv -o capture.png -g CAPR* to pass the file *t
 
 Other options are *-g CPG* for common probe graph to see probe requests
 
+# How to beat MAC Filters
 
+run airodump-ng to find a whitlisted MAC and spoof it. 
 
+*sudo airodump-ng -c 3 -a --bssid 3C:84:6A:DF:AB:7C wlan0mon* -> found: A8:93:4A:F2:C1:7D 
 
+*sudo ifconfig wlan0 down*
 
+run *sudo macchanger -m A8:93:4A:F2:C1:7D wlan0* to change the MAC and connect to the network
+
+*sudo ifconfig wlan0 up* again, *sudo iwconfig wlan0 essid "Wireless Lab"* -> check if it works by running iwconfig wlan0
 
 
 
