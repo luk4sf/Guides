@@ -1,27 +1,70 @@
-# LINUX WORKAROUNDS
+# Linux Workarounds
 
-# Get current path
-*pwd*
+## Get Current Path
 
-# Convert HEIC to JPG
-To convert .HEIC files to .JPG files use the library heif-convert.
-*sudo apt install libheif-examples* to install the package
-*for i in *.HEIC; do heif-convert "$i" "${i%.HEIC}.jpg"; done* to convert all .HEIC files in the current folder to .JPG keeping the name.
+To get the current path:
 
-# Delete all files with certain name or extension
-*find  . -name '\*json' -exec rm {} \;*
+```sh
+pwd
+```
 
-# Move all files with a certain name to a folder
-*mv *.mp4 /home/lukas/Documents/Pictures\ Handy\ Galaxy/Google\ Fotos/Photos\ from\ 2023/Videos*
+## Convert HEIC to JPG
 
-# Get single images from Videos
-*ffmpeg -i inputfile.avi -r 1 -f image2 image-%3d.jpeg*
+To convert `.HEIC` files to `.JPG` files, use the `heif-convert` tool:
 
-You can read the documentation here
-    -r 1 extract 1 image per second of video. Replace that number for the number of images you 		want to get per second.
-    -f image2 force image output format, you may probable be able to omit this since the program tries to choose the output images format from the file extension.
-    image-%3d.jpeg name of the t from the foutput images, the %3d indicates that the output generated images will have a sequence number there of 3 decimals, if you want the number padded with zeroes you just need to use %03d.
+1. Install the package:
 
-# Use dd to find disk hogs
+    ```sh
+    sudo apt install libheif-examples
+    ```
 
-Use du -sch .[!.]* * |sort -h to see all the files and folders in the current dir. Especially usefull to find hidden file hogs e.g. like /home/myAccount/.local/share/Trash . du stands for disk usage, the .[!.]* This pattern matches hidden files and directories in the current directory as well as excluding . (current directory) and .. (parent directory). *: This matches all non-hidden files and directories in the current directory.
+2. Convert all `.HEIC` files in the current directory to `.JPG` while keeping the original names:
+
+    ```sh
+    for i in *.HEIC; do heif-convert "$i" "${i%.HEIC}.jpg"; done
+    ```
+
+## Delete All Files with Certain Name or Extension
+
+To delete all files with a certain name or extension:
+
+```sh
+find . -name '*.json' -exec rm {} \;
+```
+
+## Move All Files with a Certain Name to a Folder
+
+To move all `.mp4` files to a specific folder:
+
+```sh
+mv *.mp4 /home/lukas/Documents/Pictures/Handy/Galaxy/Google/Fotos/Photos/from/2023/Videos
+```
+
+## Get Single Images from Videos
+
+To extract single images from videos using `ffmpeg`:
+
+```sh
+ffmpeg -i inputfile.avi -r 1 -f image2 image-%03d.jpeg
+```
+
+### Explanation:
+- **`-r 1`**: Extracts 1 image per second of the video. Replace this number to adjust the number of images per second.
+- **`-f image2`**: Forces the output format to images. This can often be omitted as `ffmpeg` tries to select the format based on the file extension.
+- **`image-%03d.jpeg`**: Specifies the output file name pattern. `%03d` means the images will be numbered with three digits, padded with zeroes (e.g., `image-001.jpeg`).
+
+## Use `dd` to Find Disk Hogs
+
+To find disk hogs, including hidden files, use the following command:
+
+```sh
+du -sch .[!.]* * | sort -h
+```
+
+### Explanation:
+- **`du -sch`**: Displays disk usage for each file and directory in human-readable format.
+- **`.[!.]*`**: Matches hidden files and directories in the current directory, excluding `.` (current directory) and `..` (parent directory).
+- **`*`**: Matches all non-hidden files and directories in the current directory.
+- **`sort -h`**: Sorts the output in human-readable format (e.g., `1K`, `234M`, `2G`).
+
+This command helps you identify large files and directories, including hidden ones like `/home/myAccount/.local/share/Trash`.
