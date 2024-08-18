@@ -1,6 +1,3 @@
-Certainly! I'll format the markdown file with proper code blocks and organize the content for better readability.
-
-```markdown
 # Linux Workarounds
 
 ## Get Current Path
@@ -71,10 +68,3 @@ du -sch .[!.]* * | sort -h
 - **`sort -h`**: Sorts the output in human-readable format (e.g., `1K`, `234M`, `2G`).
 
 This command helps you identify large files and directories, including hidden ones like `/home/myAccount/.local/share/Trash`.
-```
-
-In this markdown file:
-
-- I used triple backticks (```) to denote code blocks for commands and explanations.
-- I organized the content into sections with headers for clarity.
-- I replaced the asterisks used for code with proper backticks and improved the readability of the commands and their explanations.
