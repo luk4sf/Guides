@@ -1,13 +1,25 @@
-# How to configure University of Freiburg eduroam on 22.04.3 LTS (Jammy Jellyfish)
+# How to Configure University of Freiburg eduroam on Ubuntu 22.04.3 LTS (Jammy Jellyfish)
 
-1. Go to the network tab and open the Wi-Fi settings.  
+1. **Open Wi-Fi Settings**
+   - Go to the network tab and open the Wi-Fi settings.
 
-2. Select eduroam and select *Protected EAP (PEAP)* in the *Authentication* dropdown.  
+2. **Select eduroam**
+   - Choose `eduroam` from the list of available networks.
 
-3. Leave the *Anoymous identity* and *Domain* empty.  
+3. **Configure Authentication Settings**
+   - Set **Authentication** to `Protected EAP (PEAP)`.
+   - Leave the **Anonymous Identity** and **Domain** fields empty.
 
-4. *Ca certificate* stays at *(None)*, *(PEAP version)* stays at *Automatic* and *Inner authentication* stays at *MSCHAPv2*. Also check the box which says *No CA certificate is required*.  
-  
-5. Now just put in your username followed by *@uni-freiburg.de* e.g. *mm123@uni-freiburg.de* in the *Username* field and your RAS-Password in the *Password* field, if you don't remember your password it can be changed at *https://myaccount.uni-freiburg.de/*.
+4. **Configure Security Options**
+   - **CA Certificate**: Set to `(None)`.
+   - **PEAP Version**: Leave as `Automatic`.
+   - **Inner Authentication**: Set to `MSCHAPv2`.
+   - Check the box that says `No CA certificate is required`.
 
-6. Now just hit connect!
+5. **Enter Your Credentials**
+   - **Username**: Enter your username followed by `@uni-freiburg.de` (e.g., `mm123@uni-freiburg.de`).
+   - **Password**: Enter your RAS password. If you don’t remember your password, you can reset it at [myaccount.uni-freiburg.de](https://myaccount.uni-freiburg.de/).
+
+6. **Connect**
+   - Click `Connect` to join the eduroam network.
+
