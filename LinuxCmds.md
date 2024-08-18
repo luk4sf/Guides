@@ -9,7 +9,7 @@ To convert .HEIC files to .JPG files use the library heif-convert.
 *for i in *.HEIC; do heif-convert "$i" "${i%.HEIC}.jpg"; done* to convert all .HEIC files in the current folder to .JPG keeping the name.
 
 # Delete all files with certain name or extension
-*find  . -name '*json' -exec rm {} \;*
+*find  . -name '\*json' -exec rm {} \;*
 
 # Move all files with a certain name to a folder
 *mv *.mp4 /home/lukas/Documents/Pictures\ Handy\ Galaxy/Google\ Fotos/Photos\ from\ 2023/Videos*
@@ -22,3 +22,6 @@ You can read the documentation here
     -f image2 force image output format, you may probable be able to omit this since the program tries to choose the output images format from the file extension.
     image-%3d.jpeg name of the t from the foutput images, the %3d indicates that the output generated images will have a sequence number there of 3 decimals, if you want the number padded with zeroes you just need to use %03d.
 
+# Use dd to find disk hogs
+
+Use du -sch .[!.]* * |sort -h to see all the files and folders in the current dir. Especially usefull to find hidden file hogs e.g. like /home/myAccount/.local/share/Trash . du stands for disk usage, the .[!.]* This pattern matches hidden files and directories in the current directory as well as excluding . (current directory) and .. (parent directory). *: This matches all non-hidden files and directories in the current directory.
